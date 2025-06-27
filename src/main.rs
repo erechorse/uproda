@@ -1,4 +1,7 @@
 use clap::Parser;
+use std::path::Path;
+
+mod uploader;
 
 /// A simple CLI to upload multiple files concurrently.
 #[derive(Parser, Debug)]
@@ -13,11 +16,20 @@ struct Args {
     url: String,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    println!("Files to upload: {:?}", args.files);
-    println!("Target URL: {}", args.url);
+    // For now, we only upload the first file.
+    // In a later step, we will handle multiple files concurrently.
+    if let Some(file_path_str) = args.files.first() {
+        let file_path = Path::new(file_path_str);
+        uploader::upload_file(file_path, &args.url).await?;
+    } else {
+        eprintln!("No files provided for upload.");
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]
