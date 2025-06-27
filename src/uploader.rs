@@ -3,7 +3,7 @@ use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 use std::path::Path;
 
-pub async fn upload_file(file_path: &Path, url: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn upload_file(file_path: &Path, url: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let client = Client::new();
     let file_name = file_path.file_name().ok_or("Invalid file name")?.to_str().ok_or("Invalid file name")?;
 
@@ -38,7 +38,7 @@ pub async fn upload_file(file_path: &Path, url: &str) -> Result<(), Box<dyn std:
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tokio::io::AsyncWriteExt;
+    
     use tempfile::NamedTempFile;
     use std::io::Write;
 
